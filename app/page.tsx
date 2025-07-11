@@ -53,13 +53,15 @@ export default function HomePage() {
               <CardDescription className="text-center">Choose your role to access the system</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button asChild className="w-full" size="lg">
-                <Link href="/auth/student/login">Student Login</Link>
-              </Button>
-              <Button asChild variant="outline" className="w-full bg-transparent" size="lg">
-                <Link href="/auth/admin/login">Admin Login</Link>
-              </Button>
-              <div className="text-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button asChild className="w-full sm:w-auto min-w-[140px]" size="lg">
+                  <Link href="/auth/student/login">Student Login</Link>
+                </Button>
+                <Button asChild variant="outline" className="w-full sm:w-auto min-w-[140px] bg-transparent" size="lg">
+                  <Link href="/auth/admin/login">Admin Login</Link>
+                </Button>
+              </div>
+              <div className="text-center pt-2">
                 <Link href="/auth/student/signup" className="text-sm text-blue-600 hover:underline">
                   New student? Sign up here
                 </Link>
