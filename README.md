@@ -7,24 +7,16 @@
 
 ## Overview
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+Web-based student-advisory system.
 
 ## Deployment
 
-Your project is live at:
+roject is live at:
 
 **[https://vercel.com/zoldycks-projects-8a6a6155/v0-mobile-student-app](https://vercel.com/zoldycks-projects-8a6a6155/v0-mobile-student-app)**
 
-## Build your app
+## App build
 
-Continue building your app on:
+Current app build is on:
 
 **[https://v0.dev/chat/projects/ihKa4n0AnNU](https://v0.dev/chat/projects/ihKa4n0AnNU)**
-
-## How It Works
-
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
