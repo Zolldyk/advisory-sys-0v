@@ -12,9 +12,3 @@ Web-based student-advisory system.
 Project is live at:
 
 **[https://vercel.com/zoldycks-projects-8a6a6155/v0-mobile-student-app](https://vercel.com/zoldycks-projects-8a6a6155/v0-mobile-student-app)**
-
-## App build
-
-Current app build is on:
-
-**[https://v0.dev/chat/projects/ihKa4n0AnNU](https://v0.dev/chat/projects/ihKa4n0AnNU)**
