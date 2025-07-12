@@ -11,7 +11,7 @@ Web-based student-advisory system.
 
 ## Deployment
 
-roject is live at:
+Project is live at:
 
 **[https://vercel.com/zoldycks-projects-8a6a6155/v0-mobile-student-app](https://vercel.com/zoldycks-projects-8a6a6155/v0-mobile-student-app)**
 
