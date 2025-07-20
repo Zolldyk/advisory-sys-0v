@@ -42,7 +42,7 @@ export function LoginForm({ userType }: LoginFormProps) {
           description: "Welcome back!",
         })
 
-        if (data.user.role === "admin") {
+        if (data.user.role === "admin" || data.user.role === "advisor") {
           router.push("/admin/dashboard")
         } else {
           router.push("/student/dashboard")
@@ -105,6 +105,16 @@ export function LoginForm({ userType }: LoginFormProps) {
             <Link href="/" className="text-blue-600 hover:underline">
               Back to Home
             </Link>
+            {userType === "admin" && (
+              <>
+                <Link href="/auth/admin/signup" className="text-blue-600 hover:underline">
+                  {"Don't have an admin account? Sign up"}
+                </Link>
+                <Link href="/auth/advisor/signup" className="text-blue-600 hover:underline">
+                  {"Don't have an advisor account? Sign up"}
+                </Link>
+              </>
+            )}
             {userType === "student" && (
               <Link href="/auth/student/signup" className="text-blue-600 hover:underline">
                 {"Don't have an account? Sign up"}

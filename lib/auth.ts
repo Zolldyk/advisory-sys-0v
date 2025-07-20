@@ -6,30 +6,42 @@ export interface User {
   matric_number?: string
   email: string
   name: string
-  role: "student" | "admin"
+  role: "student" | "admin" | "advisor"
 }
 
 export async function signUp(data: {
-  matricNumber: string
+  matricNumber?: string
   email: string
   password: string
   name: string
+  role?: "student" | "admin" | "advisor"
 }) {
+  // Check if email already exists
+  const { data: existingUser } = await supabase.from("users").select("email").eq("email", data.email).single()
+
+  if (existingUser) {
+    throw new Error("An account with this email already exists")
+  }
+
   const hashedPassword = await bcrypt.hash(data.password, 10)
 
-  const { data: user, error } = await supabase
-    .from("users")
-    .insert({
-      matric_number: data.matricNumber,
-      email: data.email,
-      password_hash: hashedPassword,
-      role: "student",
-      name: data.name,
-    })
-    .select()
-    .single()
+  const userData = {
+    email: data.email,
+    password_hash: hashedPassword,
+    role: data.role || "student",
+    name: data.name,
+    ...(data.matricNumber && { matric_number: data.matricNumber }),
+  }
 
-  if (error) throw error
+  const { data: user, error } = await supabase.from("users").insert(userData).select().single()
+
+  if (error) {
+    if (error.code === "23505") {
+      // Unique constraint violation
+      throw new Error("An account with this email already exists")
+    }
+    throw error
+  }
   return user
 }
 
