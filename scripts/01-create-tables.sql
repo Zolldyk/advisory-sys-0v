@@ -13,26 +13,31 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- Sessions table
+CREATE TABLE IF NOT EXISTS sessions (
+    id VARCHAR(255) PRIMARY KEY,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
 -- Courses table
 CREATE TABLE IF NOT EXISTS courses (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    course_code VARCHAR(20) UNIQUE NOT NULL,
-    course_name VARCHAR(255) NOT NULL,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    title VARCHAR(255) NOT NULL,
     credits INTEGER NOT NULL,
-    semester VARCHAR(20) NOT NULL,
-    year INTEGER NOT NULL,
-    max_students INTEGER DEFAULT 30,
+    description TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Course registrations table
-CREATE TABLE IF NOT EXISTS course_registrations (
+CREATE TABLE IF NOT EXISTS registrations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     student_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-    status VARCHAR(20) DEFAULT 'registered' CHECK (status IN ('registered', 'dropped', 'completed')),
-    registered_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(student_id, course_id)
 );
 
@@ -40,18 +45,18 @@ CREATE TABLE IF NOT EXISTS course_registrations (
 CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     sender_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    recipient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    subject VARCHAR(255) NOT NULL,
+    recipient_id UUID REFERENCES users(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     is_read BOOLEAN DEFAULT FALSE,
-    sent_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 CREATE INDEX IF NOT EXISTS idx_users_matric_number ON users(matric_number);
-CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
-CREATE INDEX IF NOT EXISTS idx_course_registrations_student_id ON course_registrations(student_id);
-CREATE INDEX IF NOT EXISTS idx_course_registrations_course_id ON course_registrations(course_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_registrations_student_id ON registrations(student_id);
+CREATE INDEX IF NOT EXISTS idx_registrations_course_id ON registrations(course_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient_id ON messages(recipient_id);

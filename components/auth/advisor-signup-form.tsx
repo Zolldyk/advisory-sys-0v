@@ -13,70 +13,48 @@ import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
 
 export function AdvisorSignupForm() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    advisorCode: "",
-  })
+  const [name, setName] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [adminCode, setAdminCode] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }))
-  }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
 
-    if (formData.password !== formData.confirmPassword) {
+    if (password !== confirmPassword) {
       toast({
-        title: "Error",
+        title: "Password mismatch",
         description: "Passwords do not match",
         variant: "destructive",
       })
+      setIsLoading(false)
       return
     }
-
-    if (formData.advisorCode !== "ADMIN2024") {
-      toast({
-        title: "Error",
-        description: "Invalid advisor registration code",
-        variant: "destructive",
-      })
-      return
-    }
-
-    setIsLoading(true)
 
     try {
       const response = await fetch("/api/auth/advisor/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: JSON.stringify({ name, email, password, adminCode }),
       })
 
       const data = await response.json()
 
       if (response.ok) {
         toast({
-          title: "Account created",
-          description: "Your advisor account has been created successfully!",
+          title: "Registration successful",
+          description: "Advisor account created successfully. Please login.",
         })
         router.push("/auth/advisor/login")
       } else {
         toast({
           title: "Registration failed",
-          description: data.error || "Something went wrong",
+          description: data.error || "Failed to create advisor account",
           variant: "destructive",
         })
       }
@@ -94,8 +72,8 @@ export function AdvisorSignupForm() {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Create Advisor Account</CardTitle>
-        <CardDescription>Fill in your details to create a student advisor account</CardDescription>
+        <CardTitle>Student Advisor Registration</CardTitle>
+        <CardDescription>Create a new student advisor account</CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit}>
         <CardContent className="space-y-4">
@@ -103,10 +81,10 @@ export function AdvisorSignupForm() {
             <Label htmlFor="name">Full Name</Label>
             <Input
               id="name"
-              name="name"
+              type="text"
               placeholder="Enter your full name"
-              value={formData.name}
-              onChange={handleChange}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
@@ -114,36 +92,32 @@ export function AdvisorSignupForm() {
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
-              name="email"
               type="email"
               placeholder="Enter your email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="advisorCode">Advisor Registration Code</Label>
+            <Label htmlFor="adminCode">Advisor Registration Code</Label>
             <Input
-              id="advisorCode"
-              name="advisorCode"
-              type="password"
-              placeholder="Enter advisor registration code"
-              value={formData.advisorCode}
-              onChange={handleChange}
+              id="adminCode"
+              type="text"
+              placeholder="Enter advisor code (same as admin)"
+              value={adminCode}
+              onChange={(e) => setAdminCode(e.target.value)}
               required
             />
-            <p className="text-xs text-gray-500">Contact your system administrator for the registration code</p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <Input
               id="password"
-              name="password"
               type="password"
-              placeholder="Create a password"
-              value={formData.password}
-              onChange={handleChange}
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
@@ -151,11 +125,10 @@ export function AdvisorSignupForm() {
             <Label htmlFor="confirmPassword">Confirm Password</Label>
             <Input
               id="confirmPassword"
-              name="confirmPassword"
               type="password"
               placeholder="Confirm your password"
-              value={formData.confirmPassword}
-              onChange={handleChange}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
           </div>
@@ -166,11 +139,11 @@ export function AdvisorSignupForm() {
             Create Advisor Account
           </Button>
           <div className="flex flex-col space-y-2 text-center text-sm">
-            <Link href="/" className="text-blue-600 hover:underline">
-              Back to Home
-            </Link>
             <Link href="/auth/advisor/login" className="text-blue-600 hover:underline">
               Already have an advisor account? Sign in
+            </Link>
+            <Link href="/" className="text-blue-600 hover:underline">
+              Back to Home
             </Link>
           </div>
         </CardFooter>

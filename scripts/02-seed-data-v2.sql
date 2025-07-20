@@ -18,18 +18,25 @@ INSERT INTO users (id, matric_number, email, password_hash, role, name, created_
 ('550e8400-e29b-41d4-a716-446655440011', NULL, 'advisor@university.edu', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'advisor', 'Academic Advisor', NOW());
 
 -- Insert sample courses
-INSERT INTO courses (id, course_code, course_name, credits, semester, year, max_students, created_at) VALUES
-('650e8400-e29b-41d4-a716-446655440001', 'CS101', 'Introduction to Computer Science', 3, 'Fall', 2024, 30, NOW()),
-('650e8400-e29b-41d4-a716-446655440002', 'MATH201', 'Calculus II', 4, 'Fall', 2024, 25, NOW()),
-('650e8400-e29b-41d4-a716-446655440003', 'ENG102', 'English Composition', 3, 'Fall', 2024, 20, NOW()),
-('650e8400-e29b-41d4-a716-446655440004', 'PHYS101', 'General Physics I', 4, 'Fall', 2024, 35, NOW()),
-('650e8400-e29b-41d4-a716-446655440005', 'HIST101', 'World History', 3, 'Fall', 2024, 40, NOW());
+INSERT INTO courses (code, title, credits, description) VALUES
+('CSC101', 'Introduction to Computer Science', 3, 'Basic concepts of computer science and programming'),
+('MAT101', 'Calculus I', 4, 'Differential and integral calculus'),
+('PHY101', 'General Physics I', 4, 'Mechanics, heat, and sound'),
+('ENG101', 'English Composition', 3, 'Academic writing and communication skills'),
+('CHE101', 'General Chemistry I', 4, 'Basic principles of chemistry');
+
+-- Insert a sample student (password: student123)
+INSERT INTO users (matric_number, email, password_hash, name, role) VALUES
+('STU001', 'student@example.com', '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'John Student', 'student');
+
+-- Note: Admin and advisor accounts should be created through the registration forms
+-- Default admin code is: ADMIN2024
 
 -- Insert sample course registrations
 INSERT INTO course_registrations (id, student_id, course_id, status, registered_at) VALUES
-('750e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440001', 'registered', NOW()),
-('750e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440001', '650e8400-e29b-41d4-a716-446655440002', 'registered', NOW()),
-('750e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440002', '650e8400-e29b-41d4-a716-446655440001', 'registered', NOW());
+('750e8400-e29b-41d4-a716-446655440001', '550e8400-e29b-41d4-a716-446655440001', 'CSC101', 'registered', NOW()),
+('750e8400-e29b-41d4-a716-446655440002', '550e8400-e29b-41d4-a716-446655440001', 'MAT101', 'registered', NOW()),
+('750e8400-e29b-41d4-a716-446655440003', '550e8400-e29b-41d4-a716-446655440002', 'CSC101', 'registered', NOW());
 
 -- Insert sample messages
 INSERT INTO messages (id, sender_id, recipient_id, subject, content, sent_at) VALUES

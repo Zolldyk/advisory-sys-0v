@@ -1,34 +1,28 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { signIn } from "@/lib/auth"
+import { signIn, type User } from "@/lib/auth"
 import { createSession } from "@/lib/session"
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { email, password, userType } = await request.json()
+    const { email, password, userType } = await req.json()
 
-    const user = await signIn(email, password)
+    // 1 · Authenticate
+    const user = (await signIn(email, password)) as User
 
-    // Verify user role matches the expected type
+    // 2 · Role guard
     if (userType === "student" && user.role !== "student") {
-      return NextResponse.json({ error: "Invalid credentials for student login" }, { status: 401 })
+      return NextResponse.json({ error: "Use the student login page for student accounts." }, { status: 401 })
     }
-
     if (userType === "admin" && !["admin", "advisor"].includes(user.role)) {
-      return NextResponse.json({ error: "Invalid credentials for admin/advisor login" }, { status: 401 })
+      return NextResponse.json({ error: "Use the admin/advisor login page for those accounts." }, { status: 401 })
     }
 
-    const sessionToken = await createSession(user.id)
+    // 3 · Create cookie-based session (JWT)
+    await createSession(user)
 
-    const response = NextResponse.json({ user })
-    response.cookies.set("session", sessionToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
-    })
-
-    return response
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message || "Login failed" }, { status: 401 })
+    return NextResponse.json({ user })
+  } catch (err: any) {
+    console.error("Login error:", err)
+    return NextResponse.json({ error: err?.message ?? "Login failed" }, { status: 401 })
   }
 }
