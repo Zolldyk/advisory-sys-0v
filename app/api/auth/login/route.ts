@@ -1,28 +1,30 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { signIn, type User } from "@/lib/auth"
+import { signIn } from "@/lib/auth"
 import { createSession } from "@/lib/session"
 
-export async function POST(req: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
-    const { email, password, userType } = await req.json()
+    const { email, password } = await request.json()
 
-    // 1 · Authenticate
-    const user = (await signIn(email, password)) as User
-
-    // 2 · Role guard
-    if (userType === "student" && user.role !== "student") {
-      return NextResponse.json({ error: "Use the student login page for student accounts." }, { status: 401 })
-    }
-    if (userType === "admin" && !["admin", "advisor"].includes(user.role)) {
-      return NextResponse.json({ error: "Use the admin/advisor login page for those accounts." }, { status: 401 })
+    if (!email || !password) {
+      return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
-    // 3 · Create cookie-based session (JWT)
+    const user = await signIn(email, password)
     await createSession(user)
 
-    return NextResponse.json({ user })
-  } catch (err: any) {
-    console.error("Login error:", err)
-    return NextResponse.json({ error: err?.message ?? "Login failed" }, { status: 401 })
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        matric_number: user.matric_number,
+      },
+    })
+  } catch (error) {
+    console.error("Login error:", error)
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Login failed" }, { status: 401 })
   }
 }

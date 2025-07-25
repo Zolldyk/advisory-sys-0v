@@ -8,12 +8,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useToast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
 
 interface LoginFormProps {
-  userType: "student" | "admin"
+  userType: "student" | "admin" | "advisor"
 }
 
 export function LoginForm({ userType }: LoginFormProps) {
@@ -31,7 +30,7 @@ export function LoginForm({ userType }: LoginFormProps) {
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, userType }),
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
@@ -39,13 +38,16 @@ export function LoginForm({ userType }: LoginFormProps) {
       if (response.ok) {
         toast({
           title: "Login successful",
-          description: "Welcome back!",
+          description: `Welcome back, ${data.user.name}!`,
         })
 
-        if (data.user.role === "admin" || data.user.role === "advisor") {
-          router.push("/admin/dashboard")
-        } else {
+        // Redirect based on user role
+        if (data.user.role === "student") {
           router.push("/student/dashboard")
+        } else if (data.user.role === "admin") {
+          router.push("/admin/dashboard")
+        } else if (data.user.role === "advisor") {
+          router.push("/advisor/dashboard")
         }
       } else {
         toast({
@@ -65,64 +67,92 @@ export function LoginForm({ userType }: LoginFormProps) {
     }
   }
 
+  const getSignupLink = () => {
+    switch (userType) {
+      case "student":
+        return "/auth/student/signup"
+      case "admin":
+        return "/auth/admin/signup"
+      case "advisor":
+        return "/auth/advisor/signup"
+      default:
+        return "/auth/student/signup"
+    }
+  }
+
+  const getTitle = () => {
+    switch (userType) {
+      case "student":
+        return "Student Login"
+      case "admin":
+        return "Admin Login"
+      case "advisor":
+        return "Advisor Login"
+      default:
+        return "Login"
+    }
+  }
+
+  const getSignupText = () => {
+    switch (userType) {
+      case "student":
+        return "New student? Register here"
+      case "admin":
+        return "New admin? Register here"
+      case "advisor":
+        return "New advisor? Register here"
+      default:
+        return "Sign up"
+    }
+  }
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Sign In</CardTitle>
-        <CardDescription>Enter your credentials to access your account</CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit}>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold text-center">{getTitle()}</CardTitle>
+          <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Enter your email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Enter your password"
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Signing in..." : "Sign In"}
+            </Button>
+          </form>
+          <div className="mt-4 text-center">
+            <Link href={getSignupLink()} className="text-sm text-blue-600 hover:text-blue-500">
+              {getSignupText()}
+            </Link>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Sign In
-          </Button>
-          <div className="flex flex-col space-y-2 text-center text-sm">
-            <Link href="/" className="text-blue-600 hover:underline">
+          <div className="mt-2 text-center">
+            <Link href="/" className="text-sm text-gray-600 hover:text-gray-500">
               Back to Home
             </Link>
-            {userType === "admin" && (
-              <>
-                <Link href="/auth/admin/signup" className="text-blue-600 hover:underline">
-                  {"Don't have an admin account? Sign up"}
-                </Link>
-                <Link href="/auth/advisor/signup" className="text-blue-600 hover:underline">
-                  {"Don't have an advisor account? Sign up"}
-                </Link>
-              </>
-            )}
-            {userType === "student" && (
-              <Link href="/auth/student/signup" className="text-blue-600 hover:underline">
-                {"Don't have an account? Sign up"}
-              </Link>
-            )}
           </div>
-        </CardFooter>
-      </form>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   )
 }

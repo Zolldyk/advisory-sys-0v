@@ -1,59 +1,46 @@
-import { cookies } from "next/headers"
 import { SignJWT, jwtVerify } from "jose"
-import type { User } from "@/lib/auth"
+import { cookies } from "next/headers"
+import type { User } from "./auth"
 
-const secretKey = process.env.JWT_SECRET || "your-secret-key"
-const key = new TextEncoder().encode(secretKey)
+const secretKey = process.env.JWT_SECRET
+const encodedKey = new TextEncoder().encode(secretKey)
 
-/**
- * Encrypt arbitrary JSON into a JWT string valid for 7 days.
- */
-async function encrypt(payload: any) {
-  return new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime("7d").sign(key)
-}
-
-/**
- * Decrypt a JWT string produced by `encrypt`.
- */
-async function decrypt(token: string) {
-  const { payload } = await jwtVerify(token, key, { algorithms: ["HS256"] })
-  return payload
-}
-
-/**
- * Create a session cookie for the supplied user.
- */
 export async function createSession(user: User) {
-  const jwt = await encrypt({ user })
-  const cookieStore = cookies()
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+  const session = await new SignJWT({ user })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime(expiresAt)
+    .sign(encodedKey)
 
-  cookieStore.set("session", jwt, {
+  const cookieStore = await cookies()
+  cookieStore.set("session", session, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: true,
+    expires: expiresAt,
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
     path: "/",
   })
 }
 
-/**
- * Retrieve the current session user (or null if none/expired).
- */
 export async function getSession(): Promise<User | null> {
-  const jwt = cookies().get("session")?.value
-  if (!jwt) return null
-
   try {
-    const { user } = (await decrypt(jwt)) as { user: User }
-    return user
-  } catch {
+    const cookieStore = await cookies()
+    const session = cookieStore.get("session")?.value
+
+    if (!session) return null
+
+    const { payload } = await jwtVerify(session, encodedKey, {
+      algorithms: ["HS256"],
+    })
+
+    return payload.user as User
+  } catch (error) {
     return null
   }
 }
 
-/**
- * Clear the browser session cookie.
- */
-export function deleteSession() {
-  cookies().delete("session")
+export async function deleteSession() {
+  const cookieStore = await cookies()
+  cookieStore.delete("session")
 }
