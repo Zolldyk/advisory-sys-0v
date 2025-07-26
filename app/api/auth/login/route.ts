@@ -10,8 +10,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
     }
 
+    console.log("Attempting login for:", email)
+
     const user = await signIn(email, password)
+    console.log("User authenticated:", user.email, user.role)
+
     await createSession(user)
+    console.log("Session created successfully")
 
     return NextResponse.json({
       success: true,
@@ -25,6 +30,11 @@ export async function POST(request: NextRequest) {
     })
   } catch (error) {
     console.error("Login error:", error)
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Login failed" }, { status: 401 })
+    return NextResponse.json(
+      {
+        error: error instanceof Error ? error.message : "Login failed",
+      },
+      { status: 401 },
+    )
   }
 }

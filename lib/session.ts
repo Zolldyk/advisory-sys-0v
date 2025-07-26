@@ -2,7 +2,8 @@ import { SignJWT, jwtVerify } from "jose"
 import { cookies } from "next/headers"
 import type { User } from "./auth"
 
-const secretKey = process.env.JWT_SECRET
+// Use a fallback secret if JWT_SECRET is not set
+const secretKey = process.env.JWT_SECRET || "fallback-secret-key-for-development-only-change-in-production"
 const encodedKey = new TextEncoder().encode(secretKey)
 
 export async function createSession(user: User) {
@@ -16,7 +17,7 @@ export async function createSession(user: User) {
   const cookieStore = await cookies()
   cookieStore.set("session", session, {
     httpOnly: true,
-    secure: true,
+    secure: process.env.NODE_ENV === "production",
     expires: expiresAt,
     sameSite: "lax",
     path: "/",
@@ -36,6 +37,7 @@ export async function getSession(): Promise<User | null> {
 
     return payload.user as User
   } catch (error) {
+    console.error("Session verification error:", error)
     return null
   }
 }
