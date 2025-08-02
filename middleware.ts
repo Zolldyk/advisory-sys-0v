@@ -19,9 +19,16 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  // Protect advisor routes
+  if (pathname.startsWith("/advisor")) {
+    if (!session || session.role !== "advisor") {
+      return NextResponse.redirect(new URL("/auth/advisor/login", request.url))
+    }
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/student/:path*", "/admin/:path*"],
+  matcher: ["/student/:path*", "/admin/:path*", "/advisor/:path*"],
 }
