@@ -41,29 +41,23 @@ export function LoginForm({ userType }: LoginFormProps) {
       const data = await response.json()
 
       if (response.ok && data.user) {
-        console.log("Login successful, user data:", data.user)
         toast({
           title: "Login successful",
           description: `Welcome back, ${data.user.name}!`,
         })
 
         // Redirect based on user role
-        console.log("Redirecting user with role:", data.user.role)
         switch (data.user.role) {
           case "student":
-            console.log("Redirecting to student dashboard")
             router.push("/student/dashboard")
             break
           case "admin":
-            console.log("Redirecting to admin dashboard")
             router.push("/admin/dashboard")
             break
           case "advisor":
-            console.log("Redirecting to advisor dashboard")
             router.push("/advisor/dashboard")
             break
           default:
-            console.log("Redirecting to home page")
             router.push("/")
         }
       } else {
