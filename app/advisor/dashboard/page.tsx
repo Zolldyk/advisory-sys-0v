@@ -3,15 +3,21 @@ import { redirect } from "next/navigation"
 import { AdvisorDashboard } from "@/components/advisor/dashboard"
 import { supabase } from "@/lib/supabase"
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function AdvisorDashboardPage() {
   const session = await getSession()
 
   if (!session) {
     redirect("/auth/advisor/login")
+    return
   }
 
   if (session.role !== "advisor") {
     redirect("/")
+    return
   }
 
   // Fetch students for the advisor

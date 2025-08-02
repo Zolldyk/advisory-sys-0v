@@ -3,6 +3,10 @@ import { supabase } from "@/lib/supabase"
 import { StudentDashboard } from "@/components/student/dashboard"
 import { redirect } from "next/navigation"
 
+// Force dynamic rendering - no caching
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export default async function StudentDashboardPage() {
   const session = await getSession()
 
